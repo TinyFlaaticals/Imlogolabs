@@ -20,85 +20,169 @@ interface QueryFormData {
   serviceType: string;
 }
 
-const ImageCarousel = () => {
-  const [currentPage, setCurrentPage] = useState(0);
-  const imagesPerPage = 8;
-  const images = [
-    '/gallery/image1.jpg',
-    '/gallery/image2.jpg',
-    '/gallery/image3.jpg',
-    '/gallery/image4.jpg',
-    '/gallery/image5.jpg',
-    '/gallery/image6.jpg',
-    '/gallery/image7.jpg',
-    '/gallery/image8.jpg',
-    // Add more images as needed
-  ];
-  const totalPages = Math.ceil(images.length / imagesPerPage);
+const LogoSlider = () => {
+  const [[page, direction], setPage] = useState([0, 0]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  
-  const getCurrentImages = () => {
-    const result = [];
-    for (let i = 0; i < imagesPerPage; i++) {
-      const index = (currentPage * imagesPerPage + i) % images.length;
-      result.push(images[index]);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Images array with 24 items split into 3 pages
+  const imageGroups = [
+    // Page 1
+    [
+      '/gallery/image1.jpg',
+      '/gallery/logo2.jpg',
+      '/gallery/logo3.jpg',
+      '/gallery/logo4.jpg',
+      '/gallery/logo5.jpg',
+      '/gallery/logo6.jpg',
+      '/gallery/logo7.jpg',
+      '/gallery/logo8.jpg',
+    ],
+    // Page 2
+    [
+      '/gallery/logo9.jpg',
+      '/gallery/logo10.jpg',
+      '/gallery/logo11.jpg',
+      '/gallery/logo12.jpg',
+      '/gallery/logo13.jpg',
+      '/gallery/logo14.jpg',
+      '/gallery/logo15.jpg',
+      '/gallery/logo16.jpg',
+    ],
+    // Page 3
+    [
+      '/gallery/logo17.jpg',
+      '/gallery/logo18.jpg',
+      '/gallery/logo19.jpg',
+      '/gallery/logo20.jpg',
+      '/gallery/logo21.jpg',
+      '/gallery/logo22.jpg',
+      '/gallery/logo23.jpg',
+      '/gallery/logo24.jpg',
+    ],
+  ];
+
+  const paginate = (newDirection: number) => {
+    if (!isDragging && !selectedImage) {
+      setPage(([currentPage, _]) => {
+        const nextPage = currentPage + newDirection;
+        if (nextPage < 0) return [imageGroups.length - 1, newDirection];
+        if (nextPage >= imageGroups.length) return [0, newDirection];
+        return [nextPage, newDirection];
+      });
     }
-    return result;
   };
 
-  const currentImages = getCurrentImages();
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentPage((prev) => (prev + 1) % totalPages);
-    }, 10000);
-
-    return () => clearInterval(timer);
-  }, [totalPages]);
+  const swipeConfidenceThreshold = 10000;
+  const swipePower = (offset: number, velocity: number) => {
+    return Math.abs(offset) * velocity;
+  };
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-8 auto-rows-min px-4 sm:px-0">
-      <AnimatePresence mode="popLayout">
-        {currentImages.map((image, index) => (
+    <div className="relative overflow-hidden w-full">
+      {/* Main Slider */}
+      <div className="w-full">
+        <AnimatePresence initial={false} custom={direction} mode="popLayout">
           <motion.div
-            key={`${currentPage}-${index}`}
-            className={`${
-              selectedImage === image 
-                ? 'col-span-2 row-span-2' 
-                : 'col-span-1'
-            } aspect-square cursor-pointer relative`}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ 
-              opacity: 1, 
-              x: 0,
-              transition: {
-                duration: 0.2,
-                delay: index * 0.05,
-                ease: "easeOut"
+            key={page}
+            custom={direction}
+            initial={{ opacity: 0, x: direction > 0 ? 1000 : -1000 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: direction < 0 ? 1000 : -1000 }}
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.2 }
+            }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={1}
+            onDragStart={() => setIsDragging(true)}
+            onDragEnd={(e, { offset, velocity }) => {
+              setIsDragging(false);
+              const swipe = swipePower(offset.x, velocity.x);
+              if (swipe < -swipeConfidenceThreshold) {
+                paginate(1);
+              } else if (swipe > swipeConfidenceThreshold) {
+                paginate(-1);
               }
             }}
-            exit={{ opacity: 0, x: -20 }}
-            layoutId={`image-${index}`}
-            onClick={() => setSelectedImage(selectedImage === image ? null : image)}
+            className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4"
           >
-            <motion.div 
-              className="w-full h-full bg-black border-2 border-white/10 rounded-3xl overflow-hidden"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Image
-                src={image}
-                alt={`Gallery image ${index + 1}`}
-                width={400}
-                height={400}
-                className="w-full h-full object-cover"
-                priority={index < 4}
-              />
-            </motion.div>
+            {imageGroups[page].map((image, index) => (
+              <motion.div
+                key={`${page}-${index}`}
+                layoutId={`image-${page}-${index}`}
+                className={`${
+                  selectedImage === image 
+                    ? 'col-span-2 row-span-2 z-10' 
+                    : 'col-span-1'
+                } aspect-square cursor-pointer relative`}
+                onClick={() => {
+                  if (!isDragging) {
+                    setSelectedImage(selectedImage === image ? null : image);
+                  }
+                }}
+              >
+                <motion.div 
+                  className="w-full h-full bg-black border-2 border-white/10 rounded-3xl overflow-hidden"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Image
+                    src={image}
+                    alt={`Logo ${index + 1}`}
+                    width={400}
+                    height={400}
+                    className="w-full h-full object-cover"
+                    priority={index < 4}
+                  />
+                </motion.div>
+              </motion.div>
+            ))}
           </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Navigation Dots (Desktop Only) */}
+      <div className="hidden sm:flex justify-center space-x-2 mt-4">
+        {imageGroups.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => !selectedImage && setPage([index, index > page ? 1 : -1])}
+            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              page === index ? 'bg-white scale-125' : 'bg-white/30'
+            }`}
+          />
         ))}
-      </AnimatePresence>
+      </div>
+
+      {/* Navigation Arrows (Optional) */}
+      {!selectedImage && (
+        <>
+          <motion.button
+            className="absolute left-4 top-1/2 -translate-y-1/2 hidden sm:block"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => paginate(-1)}
+          >
+            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </motion.button>
+
+          <motion.button
+            className="absolute right-4 top-1/2 -translate-y-1/2 hidden sm:block"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => paginate(1)}
+          >
+            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </motion.button>
+        </>
+      )}
     </div>
   );
 };
@@ -145,7 +229,7 @@ const InstagramIcon = () => (
     className="text-white w-8 h-8"
   >
     <path 
-      d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" 
+      d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.204-.014-3.583-.07-4.849-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" 
       fill="currentColor"
     />
   </svg>
@@ -515,11 +599,6 @@ const SocialLink = ({ href, children }: { href: string; children: React.ReactNod
 );
 
 export default function Home() {
-  const [currentPage, setCurrentPage] = useState(0);
-  const imagesPerPage = 8;
-  const images = Array.from({ length: 20 }, (_, i) => `/image-${i + 1}.jpg`);
-  const totalPages = Math.ceil(images.length / imagesPerPage);
-
   return (
     <div className="min-h-screen w-full bg-black">
       {/* Header bar */}
@@ -560,7 +639,7 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         {/* Image Carousel */}
         <div className="md:col-span-3">
-          <ImageCarousel />
+          <LogoSlider />
         </div>
 
         {/* Services Section */}
