@@ -17,8 +17,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={geist.className}>
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${geist.className} bg-black text-white dark`}>
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   )
 }
