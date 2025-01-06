@@ -57,14 +57,14 @@ const ImageCarousel = () => {
   }, [totalPages]);
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 auto-rows-min">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-8 auto-rows-min px-4 sm:px-0">
       <AnimatePresence mode="popLayout">
         {currentImages.map((image, index) => (
           <motion.div
             key={`${currentPage}-${index}`}
             className={`${
               selectedImage === image 
-                ? 'col-span-2 row-span-2 md:col-span-2 md:row-span-2' 
+                ? 'col-span-2 row-span-2' 
                 : 'col-span-1'
             } aspect-square cursor-pointer relative`}
             initial={{ opacity: 0, x: 20 }}
@@ -213,17 +213,17 @@ const ServiceContentCard = ({ title, description, items }: Omit<ServiceCardProps
   };
 
   return (
-    <div className="bg-black rounded-[32px] p-12 border-2 border-white/10 h-full relative service-card">
-      <div className="flex flex-col space-y-8">
-        <h2 className="text-5xl font-bold text-white">{title}</h2>
-        <p className="text-white/60 text-xl leading-relaxed max-w-2xl">
+    <div className="bg-black rounded-[24px] sm:rounded-[32px] p-6 sm:p-12 border-2 border-white/10 h-full relative service-card">
+      <div className="flex flex-col space-y-6 sm:space-y-8">
+        <h2 className="text-3xl sm:text-5xl font-bold text-white">{title}</h2>
+        <p className="text-white/60 text-lg sm:text-xl leading-relaxed max-w-2xl">
           {description}
         </p>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {items.map((item: string, index: number) => (
             <div
               key={index}
-              className="px-4 py-2 rounded-full border border-white/20 text-white hover:bg-white hover:text-black hover:font-bold transition-all duration-200"
+              className="px-4 py-2 rounded-full border border-white/20 text-white text-sm sm:text-base hover:bg-white hover:text-black hover:font-bold transition-all duration-200"
             >
               {item}
             </div>
@@ -365,39 +365,36 @@ const ServiceVisualCard = () => (
 );
 
 const ServiceCard = (props: ServiceCardProps) => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
-    <div className="md:col-span-2">
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+    <div className="lg:col-span-2">
       <ServiceContentCard 
         title={props.title}
         description={props.description}
         items={props.items}
       />
     </div>
-    <div className="md:col-span-1">
+    <div className="lg:col-span-1 hidden lg:block">
       <ServiceVisualCard />
     </div>
   </div>
 );
 
 const ContactSection = () => (
-  <div className="relative overflow-hidden bg-black py-24 px-8">
+  <div className="relative overflow-hidden bg-black py-12 sm:py-24 px-4 sm:px-8">
     <div className="max-w-7xl mx-auto">
-      {/* Main content */}
       <div className="relative">
-        {/* Header */}
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-[clamp(3rem,8vw,3rem)] font-bold text-white leading-none mb-12"
+          className="text-[2.5rem] sm:text-[clamp(3rem,8vw,3rem)] font-bold text-white leading-none mb-8 sm:mb-12"
         >
           Get in touch.
         </motion.h1>
 
-        {/* Contact info */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          <div className="space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+          <div className="space-y-6 sm:space-y-8">
             {/* Email */}
             <motion.a
               href="mailto:creative@illustratedmaldives.com"
@@ -407,10 +404,10 @@ const ContactSection = () => (
               transition={{ duration: 0.6, delay: 0.2 }}
               className="group block"
             >
-              <div className="text-[clamp(1.5rem,4vw,2.5rem)] text-red-500 font-medium flex items-center gap-4">
+              <div className="text-lg sm:text-[clamp(1.5rem,4vw,2.5rem)] text-red-500 font-medium flex items-center gap-4 break-all">
                 creative@illustratedmaldives.com
                 <motion.span 
-                  className="text-2xl"
+                  className="text-xl sm:text-2xl hidden sm:inline-block"
                   initial={{ x: 0 }}
                   whileHover={{ x: 8 }}
                 >
@@ -491,9 +488,9 @@ const Header = () => (
       animate={{ y: 0, opacity: 1 }}
       className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-black/10 dark:border-white/10 transition-colors"
     >
-      <div className="max-w-7xl mx-auto px-8 py-4 flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         {/* Left side - Logo and title */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
           <div className="relative w-8 h-8">
             <Image
               src="/myphotos/imlogo.png"
@@ -508,7 +505,7 @@ const Header = () => (
           </span>
         </div>
         
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3 sm:gap-6">
           {[
             { Icon: MotionIcon, label: 'facebook' },
             { Icon: InstagramIcon, label: 'Instagram' },
