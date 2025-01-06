@@ -400,7 +400,7 @@ const ContactSection = () => (
               href="mailto:creative@illustratedmaldives.com"
               className="group block"
             >
-              <div className="text-base sm:text-[clamp(1.5rem,4vw,2.5rem)] text-red-500 font-medium flex items-center gap-2 sm:gap-4 break-all">
+              <div className="text-base sm:text-[(1.5rem,4vw,2.5rem)] text-red-500 font-medium flex items-center gap-2 sm:gap-4 break-all">
                 creative@illustratedmaldives.com
                 <motion.span className="text-lg sm:text-2xl">↗</motion.span>
               </div>
@@ -523,11 +523,11 @@ export default function Home() {
   return (
     <div className="min-h-screen w-full bg-black">
       {/* Header bar */}
-      <div className="w-full bg-black px-4 sm:px-8 py-4 sm:py-8">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
+      <div className="w-full bg-black px-4 sm:px-8 py-6">
+        <div className="max-w-7xl mx-auto flex flex-row justify-between items-center">
           {/* Left side - Logo and title */}
-          <div className="flex items-center gap-4 sm:gap-6">
-            <div className="relative w-20 h-20 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-[#4A1D1F]">
+          <div className="flex items-center gap-4">
+            <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full overflow-hidden bg-[#4A1D1F]">
               <Image
                 src="/myphotos/imlogo.png"
                 alt="Profile"
@@ -536,13 +536,13 @@ export default function Home() {
               />
             </div>
             <div>
-              <h2 className="text-2xl sm:text-4xl font-bold text-white">imlogolabs</h2>
-              <p className="text-gray-400 text-lg sm:text-xl">Graphic Designer</p>
+              <h2 className="text-xl sm:text-3xl font-bold text-white">imlogolabs</h2>
+              <p className="text-gray-400 text-sm sm:text-base">Graphic Designer</p>
             </div>
           </div>
 
           {/* Right side - Social links */}
-          <div className="flex items-center gap-4 sm:gap-6">
+          <div className="flex items-center gap-4">
             <SocialLink href="#">
               <WhatsAppIcon />
             </SocialLink>
