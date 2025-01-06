@@ -464,24 +464,9 @@ const ServiceContentCard = ({ title, description, items }: Omit<ServiceCardProps
   return (
     <div className="bg-black rounded-[16px] sm:rounded-[32px] p-4 sm:p-12 border-2 border-white/10 h-full relative service-card">
       <div className="flex flex-col space-y-4 sm:space-y-8">
-        <h2 className="text-2xl sm:text-5xl font-bold text-white">{title}</h2>
-        <p className="text-white/60 text-base sm:text-xl leading-relaxed max-w-2xl">
-          {description}
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-          {items.map((item: string, index: number) => (
-            <div
-              key={index}
-              className="px-3 sm:px-4 py-2 rounded-full border border-white/20 text-white text-sm sm:text-base hover:bg-white hover:text-black hover:font-bold transition-all duration-200"
-            >
-              {item}
-            </div>
-          ))}
-        </div>
-
-        {/* Chat Icon Button - Make it smaller on mobile */}
+        {/* Chat Icon Button - Now positioned at top right */}
         <motion.button
-          className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 p-2 sm:p-3 bg-yellow-500 rounded-full hover:bg-yellow-400"
+          className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 sm:p-3 bg-yellow-500 rounded-full hover:bg-yellow-400"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsFormOpen(!isFormOpen)}
@@ -525,6 +510,21 @@ const ServiceContentCard = ({ title, description, items }: Omit<ServiceCardProps
             /> 
           </svg>
         </motion.button>
+
+        <h2 className="text-2xl sm:text-5xl font-bold text-white">{title}</h2>
+        <p className="text-white/60 text-base sm:text-xl leading-relaxed max-w-2xl">
+          {description}
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          {items.map((item: string, index: number) => (
+            <div
+              key={index}
+              className="px-3 sm:px-4 py-2 rounded-full border border-white/20 text-white text-sm sm:text-base hover:bg-white hover:text-black hover:font-bold transition-all duration-200"
+            >
+              {item}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Query Form */}
@@ -596,65 +596,32 @@ const ServiceContentCard = ({ title, description, items }: Omit<ServiceCardProps
   );
 };
 
-const ServiceVisualCard = () => (
-  <motion.div 
-    className="bg-black rounded-[32px] border-2 border-white/10 h-full relative overflow-hidden"
-    whileHover={{ scale: 1.02 }}
-    whileTap={{ scale: 0.98 }}
-    transition={{ duration: 0.2 }}
-  >
-    <Image
-      src="/path-to-your-image.jpg"
-      alt="Service visual"
-      fill
-      className="object-cover"
-      priority
-    />
-  </motion.div>
-);
-
 const ServiceCard = (props: ServiceCardProps) => (
-  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-    <div className="lg:col-span-2">
-      <ServiceContentCard 
-        title={props.title}
-        description={props.description}
-        items={props.items}
-      />
-    </div>
-    <div className="lg:col-span-1 hidden lg:block">
-      <ServiceVisualCard />
-    </div>
-  </div>
+  <ServiceContentCard 
+    title={props.title}
+    description={props.description}
+    items={props.items}
+  />
 );
 
 const ContactSection = () => (
-  <div className="relative overflow-hidden bg-black py-8 sm:py-24 px-4 sm:px-8">
-    <div className="max-w-7xl mx-auto">
+  <div className="relative overflow-hidden bg-black py-8 sm:py-24">
+    <div className="max-w-7xl mx-auto px-4 sm:px-8">
       <div className="relative">
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-2xl sm:text-[clamp(3rem,8vw,3rem)] font-bold text-white leading-tight mb-6 sm:mb-12"
+          className="text-2xl sm:text-[clamp(3rem,8vw,3rem)] font-bold text-white leading-tight mb-12"
         >
           Get in touch.
         </motion.h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-16">
-          <div className="space-y-6 sm:space-y-8">
-            {/* Email with better mobile handling */}
-            <motion.a
-              href="mailto:creative@illustratedmaldives.com"
-              className="group block"
-            >
-              <div className="text-base sm:text-[(1.5rem,4vw,2.5rem)] text-red-500 font-medium flex items-center gap-2 sm:gap-4 break-all">
-                creative@illustratedmaldives.com
-                <motion.span className="text-lg sm:text-2xl">↗</motion.span>
-              </div>
-            </motion.a>
+        <div className="w-full h-[2px] bg-white/10 mb-12"></div>
 
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-16">
+          <div className="space-y-12">
             {/* Phone */}
             <motion.a
               href="tel:+9607692107"
@@ -665,7 +632,7 @@ const ContactSection = () => (
 
             {/* Location */}
             <motion.div className="space-y-2">
-              <h3 className="text-white/40 uppercase text-xs sm:text-sm tracking-wider">Location</h3>
+              <h3 className="text-white/40 uppercase text-xs sm:text-sm tracking-wider">LOCATION</h3>
               <address className="text-white/70 not-italic text-base sm:text-lg leading-relaxed">
                 Ma.Vagaaru, 5B, 5th Floor,<br />
                 Buruzu Magu, Male&apos;, 20141<br />
@@ -857,7 +824,6 @@ export default function Home() {
                 "Print Design",
                 "Commercials"
               ]}
-              imageSrc="/path-to-design-image.jpg"
             />
             
             <ServiceCard
@@ -872,7 +838,6 @@ export default function Home() {
                 "Technical Consulting & Support",
                 "AR/VR Experiences"
               ]}
-              imageSrc="/path-to-tech-image.jpg"
             />
             
             <ServiceCard
@@ -887,7 +852,6 @@ export default function Home() {
                 "Photo Content",
                 "Ads"
               ]}
-              imageSrc="/path-to-social-image.jpg"
             />
           </div>
         </div>
