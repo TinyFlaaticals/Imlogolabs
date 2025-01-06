@@ -148,6 +148,9 @@ const LogoSlider = ({ page, direction, selectedImage, setSelectedImage, onPagina
                     height={400}
                     className="w-full h-full object-cover"
                     priority={index < 4}
+                    onError={(e) => {
+                      console.error(`Error loading image: ${image}`);
+                    }}
                   />
                 </motion.div>
               </motion.div>
