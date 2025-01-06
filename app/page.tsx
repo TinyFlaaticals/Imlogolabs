@@ -30,40 +30,40 @@ const LogoSlider = ({ page, direction, selectedImage, setSelectedImage, onPagina
   const [isDragging, setIsDragging] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
 
-  // Images array with 24 items split into 3 pages
+  // Update image paths to use the correct public directory structure
   const imageGroups = [
     // Page 1
     [
-      '/gallery/image1.jpg',
-      '/gallery/image2.jpg',
-      '/gallery/image3.jpg',
-      '/gallery/image4.jpg',
-      '/gallery/image5.jpg',
-      '/gallery/image6.jpg',
-      '/gallery/image7.jpg',
-      '/gallery/image8.jpg',
+      '/gallery/1.jpg',  // Update these paths to match your actual image names
+      '/gallery/2.jpg',
+      '/gallery/3.jpg',
+      '/gallery/4.jpg',
+      '/gallery/5.jpg',
+      '/gallery/6.jpg',
+      '/gallery/7.jpg',
+      '/gallery/8.jpg',
     ],
     // Page 2
     [
-      '/gallery/image9.jpg',
-      '/gallery/image10.jpg',
-      '/gallery/image11.jpg',
-      '/gallery/image12.jpg',
-      '/gallery/image13.jpg',
-      '/gallery/image14.jpg',
-      '/gallery/image15.jpg',
-      '/gallery/image16.jpg',
+      '/gallery/9.jpg',
+      '/gallery/10.jpg',
+      '/gallery/11.jpg',
+      '/gallery/12.jpg',
+      '/gallery/13.jpg',
+      '/gallery/14.jpg',
+      '/gallery/15.jpg',
+      '/gallery/16.jpg',
     ],
     // Page 3
     [
-      '/gallery/image17.jpg',
-      '/gallery/image18.jpg',
-      '/gallery/image19.jpg',
-      '/gallery/image20.jpg',
-      '/gallery/image21.jpg',
-      '/gallery/image22.jpg',
-      '/gallery/image23.jpg',
-      '/gallery/image24.jpg',
+      '/gallery/17.jpg',
+      '/gallery/18.jpg',
+      '/gallery/19.jpg',
+      '/gallery/20.jpg',
+      '/gallery/21.jpg',
+      '/gallery/22.jpg',
+      '/gallery/23.jpg',
+      '/gallery/24.jpg',
     ],
   ];
 
@@ -89,20 +89,79 @@ const LogoSlider = ({ page, direction, selectedImage, setSelectedImage, onPagina
     }
   };
 
+  // Add error handling for Image component
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, imagePath: string) => {
+    console.error(`Error loading image: ${imagePath}`);
+    // Optionally set a fallback image
+    (e.target as HTMLImageElement).src = '/gallery/fallback.jpg'; // Create a fallback image in public/gallery/
+  };
+
+  // Add animation variants for the grid
+  const gridVariants = {
+    hidden: (direction: number) => ({
+      x: direction > 0 ? 1000 : -1000,
+      opacity: 0
+    }),
+    visible: {
+      x: 0,
+      opacity: 1,
+      transition: {
+        x: { type: "spring", stiffness: 300, damping: 30 },
+        opacity: { duration: 0.2 },
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    },
+    exit: (direction: number) => ({
+      x: direction < 0 ? 1000 : -1000,
+      opacity: 0,
+      transition: {
+        x: { type: "spring", stiffness: 300, damping: 30 },
+        opacity: { duration: 0.2 }
+      }
+    })
+  };
+
+  // Updated fluid motion variants with no bounce
+  const imageVariants = {
+    normal: {
+      scale: 1,
+      transition: {
+        type: "tween",
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1],  // Custom cubic-bezier
+        scale: {
+          duration: 0.6,
+          ease: [0.22, 1, 0.36, 1]
+        }
+      }
+    },
+    expanded: {
+      scale: 1.05,
+      zIndex: 10,
+      transition: {
+        type: "tween",
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1],
+        scale: {
+          duration: 0.6,
+          ease: [0.22, 1, 0.36, 1]
+        }
+      }
+    }
+  };
+
   return (
     <div className="relative overflow-hidden w-full">
       <div className="w-full">
-        <AnimatePresence initial={false} custom={direction} mode="popLayout">
+        <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={page}
             custom={direction}
-            initial={{ opacity: 0, x: direction > 0 ? 1000 : -1000 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: direction < 0 ? 1000 : -1000 }}
-            transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.2 }
-            }}
+            variants={gridVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={1}
@@ -124,22 +183,50 @@ const LogoSlider = ({ page, direction, selectedImage, setSelectedImage, onPagina
               <motion.div
                 key={`${page}-${index}`}
                 layoutId={`image-${page}-${index}`}
-                className={`${
-                  selectedImage === image 
-                    ? 'col-span-2 row-span-2 z-10' 
-                    : 'col-span-1'
-                } aspect-square cursor-pointer relative`}
+                className={`
+                  ${selectedImage === image ? 'col-span-2 row-span-2' : 'col-span-1'} 
+                  aspect-square cursor-pointer relative
+                  transition-all duration-600 ease-[cubic-bezier(0.22,1,0.36,1)]
+                `}
                 onClick={() => {
                   if (!isDragging) {
                     setSelectedImage(selectedImage === image ? null : image);
                   }
                 }}
+                variants={imageVariants}
+                animate={selectedImage === image ? "expanded" : "normal"}
+                whileHover={{ 
+                  scale: selectedImage === image ? 1.02 : 1.05,
+                  transition: { 
+                    duration: 0.5,
+                    ease: [0.22, 1, 0.36, 1]
+                  }
+                }}
+                layout
+                transition={{
+                  default: {
+                    duration: 0.6,
+                    ease: [0.22, 1, 0.36, 1]
+                  },
+                  layout: {
+                    duration: 0.6,
+                    ease: [0.22, 1, 0.36, 1]
+                  }
+                }}
               >
                 <motion.div 
                   className="w-full h-full bg-black border-2 border-white/10 rounded-3xl overflow-hidden"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={{ duration: 0.2 }}
+                  layoutId={`container-${page}-${index}`}
+                  transition={{
+                    default: {
+                      duration: 0.6,
+                      ease: [0.22, 1, 0.36, 1]
+                    },
+                    layout: {
+                      duration: 0.6,
+                      ease: [0.22, 1, 0.36, 1]
+                    }
+                  }}
                 >
                   <Image
                     src={image}
@@ -148,9 +235,8 @@ const LogoSlider = ({ page, direction, selectedImage, setSelectedImage, onPagina
                     height={400}
                     className="w-full h-full object-cover"
                     priority={index < 4}
-                    onError={(e) => {
-                      console.error(`Error loading image: ${image}`);
-                    }}
+                    onError={(e) => handleImageError(e, image)}
+                    quality={75}
                   />
                 </motion.div>
               </motion.div>
@@ -159,18 +245,25 @@ const LogoSlider = ({ page, direction, selectedImage, setSelectedImage, onPagina
         </AnimatePresence>
       </div>
 
-      {/* Navigation Dots (Desktop Only) */}
-      <div className="hidden sm:flex justify-center space-x-2 mt-4">
+      {/* Navigation Dots with animation */}
+      <motion.div 
+        className="hidden sm:flex justify-center space-x-2 mt-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
         {imageGroups.map((_, index) => (
-          <button
+          <motion.button
             key={index}
             onClick={() => !selectedImage && onPaginate(index > page ? 1 : -1)}
             className={`w-2 h-2 rounded-full transition-all duration-300 ${
               page === index ? 'bg-white scale-125' : 'bg-white/30'
             }`}
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 0.9 }}
           />
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 };
@@ -183,26 +276,78 @@ const SliderNavigation = ({ onPrevClick, onNextClick, disabled }: {
   <>
     <motion.button
       className="absolute -left-12 sm:-left-16 top-1/2 -translate-y-1/2 p-2 bg-yellow-500 rounded-full hover:bg-yellow-400 hidden sm:block"
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
+      whileHover={{ 
+        scale: 1.05,
+        transition: {
+          duration: 0.4,
+          ease: [0.22, 1, 0.36, 1]
+        }
+      }}
+      whileTap={{ 
+        scale: 0.95,
+        transition: {
+          duration: 0.2,
+          ease: [0.22, 1, 0.36, 1]
+        }
+      }}
+      initial={{ y: "-50%" }}  // Set initial position to match -translate-y-1/2
       onClick={onPrevClick}
       disabled={disabled}
     >
-      <svg className="w-6 h-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <motion.svg 
+        className="w-6 h-6 text-black" 
+        fill="none" 
+        viewBox="0 0 24 24" 
+        stroke="currentColor"
+        initial={{ x: 0 }}
+        whileHover={{ 
+          x: -2,
+          transition: {
+            duration: 0.4,
+            ease: [0.22, 1, 0.36, 1]
+          }
+        }}
+      >
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-      </svg>
+      </motion.svg>
     </motion.button>
 
     <motion.button
       className="absolute -right-12 sm:-right-16 top-1/2 -translate-y-1/2 p-2 bg-yellow-500 rounded-full hover:bg-yellow-400 hidden sm:block"
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
+      whileHover={{ 
+        scale: 1.05,
+        transition: {
+          duration: 0.4,
+          ease: [0.22, 1, 0.36, 1]
+        }
+      }}
+      whileTap={{ 
+        scale: 0.95,
+        transition: {
+          duration: 0.2,
+          ease: [0.22, 1, 0.36, 1]
+        }
+      }}
+      initial={{ y: "-50%" }}  // Set initial position to match -translate-y-1/2
       onClick={onNextClick}
       disabled={disabled}
     >
-      <svg className="w-6 h-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <motion.svg 
+        className="w-6 h-6 text-black" 
+        fill="none" 
+        viewBox="0 0 24 24" 
+        stroke="currentColor"
+        initial={{ x: 0 }}
+        whileHover={{ 
+          x: 2,
+          transition: {
+            duration: 0.4,
+            ease: [0.22, 1, 0.36, 1]
+          }
+        }}
+      >
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-      </svg>
+      </motion.svg>
     </motion.button>
   </>
 );
@@ -249,7 +394,7 @@ const InstagramIcon = () => (
     className="text-white w-8 h-8"
   >
     <path 
-      d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.204-.014-3.583-.07-4.849-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" 
+      d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 2.617-4.771 6.979-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.204-.014-3.583-.07-4.849-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" 
       fill="currentColor"
     />
   </svg>

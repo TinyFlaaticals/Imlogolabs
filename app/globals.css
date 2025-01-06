@@ -1,3 +1,8 @@
+/* @import 'tailwindcss/base';
+ * @import 'tailwindcss/components';
+ * @import 'tailwindcss/utilities';
+ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,6 +10,10 @@
 :root {
   --foreground-rgb: 255, 255, 255;
   --background-rgb: 0, 0, 0;
+  --grid-transition-duration: 0.3s;
+  --grid-transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+  --image-expansion-scale: 1.05;
+  --image-hover-scale: 1.02;
 }
 
 body {
