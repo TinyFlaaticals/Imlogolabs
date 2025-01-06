@@ -168,18 +168,18 @@ const WhatsAppIcon = () => (
 
 // New components for services
 const ServiceHeader = () => (
-  <div className="text-center mb-16 space-y-4">
-        <p className="text-white max-w-3xl mx-auto font-bold text-2xl">
+  <div className="text-center mb-8 sm:mb-16 space-y-4 px-4 sm:px-0">
+    <p className="text-white max-w-3xl mx-auto font-bold text-xl sm:text-2xl">
       Services
     </p>
-    <h1 className="text-yellow-500 text-[clamp(2rem,5vw,2rem)] font-bold leading-tight">
-      Have a great idea but unsure how to bring it to life? <br />
+    <h1 className="text-yellow-500 text-[1.5rem] sm:text-[clamp(2rem,5vw,2rem)] font-bold leading-tight">
+      Have a great idea but unsure how to bring it to life?
     </h1>
-    <p className="text-white/80 max-w-3xl mx-auto text-xl">
-      We understand what it's like to have a really good idea and not knowing what to do or where to start. Or being stuck, unable to figure out what the next moves are for your business. That's where we come in!
+    <p className="text-white/80 max-w-3xl mx-auto text-base sm:text-xl">
+      We understand what it&apos;s like to have a really good idea and not knowing what to do or where to start. Or being stuck, unable to figure out what the next moves are for your business. That&apos;s where we come in!
     </p>
-    <p className="text-white/80 max-w-3xl mx-auto text-xl">
-      We'll kick it off with a discovery session and take it from there!
+    <p className="text-white/80 max-w-3xl mx-auto text-base sm:text-xl">
+      We&apos;ll kick it off with a discovery session and take it from there!
     </p>
   </div>
 );
@@ -213,26 +213,26 @@ const ServiceContentCard = ({ title, description, items }: Omit<ServiceCardProps
   };
 
   return (
-    <div className="bg-black rounded-[24px] sm:rounded-[32px] p-6 sm:p-12 border-2 border-white/10 h-full relative service-card">
-      <div className="flex flex-col space-y-6 sm:space-y-8">
-        <h2 className="text-3xl sm:text-5xl font-bold text-white">{title}</h2>
-        <p className="text-white/60 text-lg sm:text-xl leading-relaxed max-w-2xl">
+    <div className="bg-black rounded-[16px] sm:rounded-[32px] p-4 sm:p-12 border-2 border-white/10 h-full relative service-card">
+      <div className="flex flex-col space-y-4 sm:space-y-8">
+        <h2 className="text-2xl sm:text-5xl font-bold text-white">{title}</h2>
+        <p className="text-white/60 text-base sm:text-xl leading-relaxed max-w-2xl">
           {description}
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {items.map((item: string, index: number) => (
             <div
               key={index}
-              className="px-4 py-2 rounded-full border border-white/20 text-white text-sm sm:text-base hover:bg-white hover:text-black hover:font-bold transition-all duration-200"
+              className="px-3 sm:px-4 py-2 rounded-full border border-white/20 text-white text-sm sm:text-base hover:bg-white hover:text-black hover:font-bold transition-all duration-200"
             >
               {item}
             </div>
           ))}
         </div>
 
-        {/* Chat Icon Button */}
+        {/* Chat Icon Button - Make it smaller on mobile */}
         <motion.button
-          className="absolute bottom-6 right-6 p-3 bg-yellow-500 rounded-full hover:bg-yellow-400"
+          className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 p-2 sm:p-3 bg-yellow-500 rounded-full hover:bg-yellow-400"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsFormOpen(!isFormOpen)}
@@ -285,14 +285,14 @@ const ServiceContentCard = ({ title, description, items }: Omit<ServiceCardProps
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-white/10 backdrop-blur-md rounded-[32px] p-6"
+            className="absolute inset-0 bg-white/10 backdrop-blur-md rounded-[16px] sm:rounded-[32px] p-4 sm:p-6"
           >
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
               <div className="space-y-2">
                 <input
                   type="text"
                   placeholder="Name"
-                  className="w-full px-4 py-2 bg-black/50 rounded-full border border-white/20 text-white"
+                  className="w-full px-3 sm:px-4 py-2 bg-black/50 rounded-full border border-white/20 text-white text-sm sm:text-base"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
@@ -301,7 +301,7 @@ const ServiceContentCard = ({ title, description, items }: Omit<ServiceCardProps
                 <input
                   type="tel"
                   placeholder="Contact Number"
-                  className="w-full px-4 py-2 bg-black/50 rounded-full border border-white/20 text-white"
+                  className="w-full px-3 sm:px-4 py-2 bg-black/50 rounded-full border border-white/20 text-white text-sm sm:text-base"
                   value={formData.contactNumber}
                   onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
                 />
@@ -310,14 +310,14 @@ const ServiceContentCard = ({ title, description, items }: Omit<ServiceCardProps
                 <input
                   type="email"
                   placeholder="Email"
-                  className="w-full px-4 py-2 bg-black/50 rounded-full border border-white/20 text-white"
+                  className="w-full px-3 sm:px-4 py-2 bg-black/50 rounded-full border border-white/20 text-white text-sm sm:text-base"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <select
-                  className="w-full px-4 py-2 bg-black/50 rounded-full border border-white/20 text-white"
+                  className="w-full px-3 sm:px-4 py-2 bg-black/50 rounded-full border border-white/20 text-white text-sm sm:text-base"
                   value={formData.serviceType}
                   onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
                 >
@@ -380,7 +380,7 @@ const ServiceCard = (props: ServiceCardProps) => (
 );
 
 const ContactSection = () => (
-  <div className="relative overflow-hidden bg-black py-12 sm:py-24 px-4 sm:px-8">
+  <div className="relative overflow-hidden bg-black py-8 sm:py-24 px-4 sm:px-8">
     <div className="max-w-7xl mx-auto">
       <div className="relative">
         <motion.h1 
@@ -388,91 +388,40 @@ const ContactSection = () => (
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-[2.5rem] sm:text-[clamp(3rem,8vw,3rem)] font-bold text-white leading-none mb-8 sm:mb-12"
+          className="text-2xl sm:text-[clamp(3rem,8vw,3rem)] font-bold text-white leading-tight mb-6 sm:mb-12"
         >
           Get in touch.
         </motion.h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-16">
           <div className="space-y-6 sm:space-y-8">
-            {/* Email */}
+            {/* Email with better mobile handling */}
             <motion.a
               href="mailto:creative@illustratedmaldives.com"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
               className="group block"
             >
-              <div className="text-lg sm:text-[clamp(1.5rem,4vw,2.5rem)] text-red-500 font-medium flex items-center gap-4 break-all">
+              <div className="text-base sm:text-[clamp(1.5rem,4vw,2.5rem)] text-red-500 font-medium flex items-center gap-2 sm:gap-4 break-all">
                 creative@illustratedmaldives.com
-                <motion.span 
-                  className="text-xl sm:text-2xl hidden sm:inline-block"
-                  initial={{ x: 0 }}
-                  whileHover={{ x: 8 }}
-                >
-                  ↗
-                </motion.span>
+                <motion.span className="text-lg sm:text-2xl">↗</motion.span>
               </div>
             </motion.a>
 
             {/* Phone */}
             <motion.a
-              href="tel:+9603009001"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-[clamp(1.2rem,3vw,2rem)] text-white/70 hover:text-white transition-colors"
+              href="tel:+9607692107"
+              className="text-lg sm:text-[clamp(1.2rem,3vw,2rem)] text-white/70 hover:text-white transition-colors block"
             >
               +960 7692107
             </motion.a>
 
             {/* Location */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="space-y-2"
-            >
-              <h3 className="text-white/40 uppercase text-sm tracking-wider">Location</h3>
-              <address className="text-white/70 not-italic text-lg leading-relaxed">
+            <motion.div className="space-y-2">
+              <h3 className="text-white/40 uppercase text-xs sm:text-sm tracking-wider">Location</h3>
+              <address className="text-white/70 not-italic text-base sm:text-lg leading-relaxed">
                 Ma.Vagaaru, 5B, 5th Floor,<br />
-                Buruzu Magu, Male', 20141<br />
+                Buruzu Magu, Male&apos;, 20141<br />
                 Maldives.
               </address>
-            </motion.div>
-          </div>
-
-          {/* Social Links */}
-          <div className="lg:justify-self-end self-end">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="flex gap-6"
-            >
-              {[
-                { name: 'Facebook', href: '#' },
-                { name: 'Instagram', href: '#' },
-                { name: 'LinkedIn', href: '#' },
-                { name: 'Twitter', href: '#' },
-                { name: 'YouTube', href: '#' }
-              ].map((social) => (
-                <motion.a
-                  key={social.name}
-                  href={social.href}
-                  whileHover={{ y: -4 }}
-                  className="text-white/40 hover:text-white transition-colors"
-                >
-                  <span className="sr-only">{social.name}</span>
-                  <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:border-white/30 transition-colors">
-                    <span className="text-sm">{social.name[0]}</span>
-                  </div>
-                </motion.a>
-              ))}
             </motion.div>
           </div>
         </div>
@@ -572,13 +521,13 @@ export default function Home() {
   const totalPages = Math.ceil(images.length / imagesPerPage);
 
   return (
-    <div className="min-h-screen w-full bg-white dark:bg-black transition-colors">
-      {/* New header bar */}
-      <div className="w-full bg-white dark:bg-black px-8 py-8">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+    <div className="min-h-screen w-full bg-black">
+      {/* Header bar */}
+      <div className="w-full bg-black px-4 sm:px-8 py-4 sm:py-8">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
           {/* Left side - Logo and title */}
-          <div className="flex items-center gap-6">
-            <div className="relative w-32 h-32 rounded-full overflow-hidden bg-[#4A1D1F]">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <div className="relative w-20 h-20 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-[#4A1D1F]">
               <Image
                 src="/myphotos/imlogo.png"
                 alt="Profile"
@@ -587,59 +536,37 @@ export default function Home() {
               />
             </div>
             <div>
-              <h2 className="text-4xl font-bold text-black dark:text-white">imlogolabs</h2>
-              <p className="text-gray-400 text-xl">Graphic Designer</p>
+              <h2 className="text-2xl sm:text-4xl font-bold text-white">imlogolabs</h2>
+              <p className="text-gray-400 text-lg sm:text-xl">Graphic Designer</p>
             </div>
           </div>
 
           {/* Right side - Social links */}
-          <div className="flex items-center gap-6">
-            {/* WhatsApp Icon */}
+          <div className="flex items-center gap-4 sm:gap-6">
             <SocialLink href="#">
               <WhatsAppIcon />
             </SocialLink>
-            {/* Facebook Icon */}
             <SocialLink href="#">
-              <svg 
-                width="32" 
-                height="32" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                xmlns="http://www.w3.org/2000/svg"
-                className="text-black dark:text-white w-8 h-8"
-              > 
-                <path d="M12 2.53906C17.5229 2.53906 22 7.01621 22 12.5391C22 17.5304 18.3431 21.6674 13.5625 22.4176V15.4297H15.8926L16.3359 12.5391L13.5625 12.5387V10.6632C13.5625 10.657 13.5625 10.6509 13.5626 10.6447C13.5626 10.6354 13.5628 10.6262 13.5629 10.6169C13.578 9.84259 13.9742 9.10156 15.1921 9.10156H16.4531V6.64062C16.4531 6.64062 15.3087 6.44492 14.2146 6.44492C11.966 6.44492 10.4842 7.78652 10.4386 10.2193C10.4379 10.2578 10.4375 10.2965 10.4375 10.3355V12.5387H7.89844V15.4293L10.4375 15.4297V22.4172C5.65686 21.667 2 17.5304 2 12.5391C2 7.01621 6.47715 2.53906 12 2.53906Z" fill="currentColor"/>
-              </svg>
+              <InstagramIcon />
             </SocialLink>
-            {/* Instagram Icon */}
             <SocialLink href="#">
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="24" 
-                height="24" 
-                viewBox="0 0 24 24"
-                className="text-black dark:text-white w-8 h-8"
-              >
-                <path 
-                  d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" 
-                  fill="currentColor"
-                />
-              </svg>
+              <MotionIcon />
             </SocialLink>
           </div>
         </div>
       </div>
 
-      {/* Rest of your content */}
-      <div className="max-w-7xl mx-auto">
+      {/* Main content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
+        {/* Image Carousel */}
         <div className="md:col-span-3">
           <ImageCarousel />
         </div>
 
         {/* Services Section */}
-        <div className="md:col-span-3 mt-16">
+        <div className="md:col-span-3 mt-8 sm:mt-16">
           <ServiceHeader />
-          <div className="grid grid-cols-1 gap-8">
+          <div className="grid grid-cols-1 gap-6 sm:gap-8">
             <ServiceCard
               title="Design"
               description="With a careful eye for detail and boundless creativity, we transform visions into captivating realities. Every line, color, and font choice tells a story—yours—crafted to stand out and connect."
@@ -691,6 +618,8 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Contact Section */}
       <ContactSection />
     </div>
   );
