@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { ThemeToggle } from './components/ThemeToggle'
 
 // Add interface for ServiceCard props
 interface ServiceCardProps {
