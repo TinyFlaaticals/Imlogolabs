@@ -20,67 +20,77 @@ interface QueryFormData {
   serviceType: string;
 }
 
-const LogoSlider = () => {
-  const [[page, direction], setPage] = useState([0, 0]);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+const LogoSlider = ({ page, direction, selectedImage, setSelectedImage, onPaginate }: {
+  page: number;
+  direction: number;
+  selectedImage: string | null;
+  setSelectedImage: (image: string | null) => void;
+  onPaginate: (direction: number) => void;
+}) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
 
   // Images array with 24 items split into 3 pages
   const imageGroups = [
     // Page 1
     [
       '/gallery/image1.jpg',
-      '/gallery/logo2.jpg',
-      '/gallery/logo3.jpg',
-      '/gallery/logo4.jpg',
-      '/gallery/logo5.jpg',
-      '/gallery/logo6.jpg',
-      '/gallery/logo7.jpg',
-      '/gallery/logo8.jpg',
+      '/gallery/image2.jpg',
+      '/gallery/image3.jpg',
+      '/gallery/image4.jpg',
+      '/gallery/image5.jpg',
+      '/gallery/image6.jpg',
+      '/gallery/image7.jpg',
+      '/gallery/image8.jpg',
     ],
     // Page 2
     [
-      '/gallery/logo9.jpg',
-      '/gallery/logo10.jpg',
-      '/gallery/logo11.jpg',
-      '/gallery/logo12.jpg',
-      '/gallery/logo13.jpg',
-      '/gallery/logo14.jpg',
-      '/gallery/logo15.jpg',
-      '/gallery/logo16.jpg',
+      '/gallery/image9.jpg',
+      '/gallery/image10.jpg',
+      '/gallery/image11.jpg',
+      '/gallery/image12.jpg',
+      '/gallery/image13.jpg',
+      '/gallery/image14.jpg',
+      '/gallery/image15.jpg',
+      '/gallery/image16.jpg',
     ],
     // Page 3
     [
-      '/gallery/logo17.jpg',
-      '/gallery/logo18.jpg',
-      '/gallery/logo19.jpg',
-      '/gallery/logo20.jpg',
-      '/gallery/logo21.jpg',
-      '/gallery/logo22.jpg',
-      '/gallery/logo23.jpg',
-      '/gallery/logo24.jpg',
+      '/gallery/image17.jpg',
+      '/gallery/image18.jpg',
+      '/gallery/image19.jpg',
+      '/gallery/image20.jpg',
+      '/gallery/image21.jpg',
+      '/gallery/image22.jpg',
+      '/gallery/image23.jpg',
+      '/gallery/image24.jpg',
     ],
   ];
-
-  const paginate = (newDirection: number) => {
-    if (!isDragging && !selectedImage) {
-      setPage(([currentPage, _]) => {
-        const nextPage = currentPage + newDirection;
-        if (nextPage < 0) return [imageGroups.length - 1, newDirection];
-        if (nextPage >= imageGroups.length) return [0, newDirection];
-        return [nextPage, newDirection];
-      });
-    }
-  };
 
   const swipeConfidenceThreshold = 10000;
   const swipePower = (offset: number, velocity: number) => {
     return Math.abs(offset) * velocity;
   };
 
+  // Add touch event handling for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStart) {
+      const currentTouch = e.touches[0].clientX;
+      const diff = touchStart - currentTouch;
+      
+      if (Math.abs(diff) > 100) { // Minimum swipe distance
+        onPaginate(diff > 0 ? 1 : -1);
+        setTouchStart(null);
+      }
+    }
+  };
+
   return (
     <div className="relative overflow-hidden w-full">
-      {/* Main Slider */}
       <div className="w-full">
         <AnimatePresence initial={false} custom={direction} mode="popLayout">
           <motion.div
@@ -101,11 +111,13 @@ const LogoSlider = () => {
               setIsDragging(false);
               const swipe = swipePower(offset.x, velocity.x);
               if (swipe < -swipeConfidenceThreshold) {
-                paginate(1);
+                onPaginate(1);
               } else if (swipe > swipeConfidenceThreshold) {
-                paginate(-1);
+                onPaginate(-1);
               }
             }}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
             className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4"
           >
             {imageGroups[page].map((image, index) => (
@@ -149,43 +161,48 @@ const LogoSlider = () => {
         {imageGroups.map((_, index) => (
           <button
             key={index}
-            onClick={() => !selectedImage && setPage([index, index > page ? 1 : -1])}
+            onClick={() => !selectedImage && onPaginate(index > page ? 1 : -1)}
             className={`w-2 h-2 rounded-full transition-all duration-300 ${
               page === index ? 'bg-white scale-125' : 'bg-white/30'
             }`}
           />
         ))}
       </div>
-
-      {/* Navigation Arrows (Optional) */}
-      {!selectedImage && (
-        <>
-          <motion.button
-            className="absolute left-4 top-1/2 -translate-y-1/2 hidden sm:block"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => paginate(-1)}
-          >
-            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </motion.button>
-
-          <motion.button
-            className="absolute right-4 top-1/2 -translate-y-1/2 hidden sm:block"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => paginate(1)}
-          >
-            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </motion.button>
-        </>
-      )}
     </div>
   );
 };
+
+const SliderNavigation = ({ onPrevClick, onNextClick, disabled }: {
+  onPrevClick: () => void;
+  onNextClick: () => void;
+  disabled: boolean;
+}) => (
+  <>
+    <motion.button
+      className="absolute -left-12 sm:-left-16 top-1/2 -translate-y-1/2 p-2 bg-yellow-500 rounded-full hover:bg-yellow-400 hidden sm:block"
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={onPrevClick}
+      disabled={disabled}
+    >
+      <svg className="w-6 h-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+      </svg>
+    </motion.button>
+
+    <motion.button
+      className="absolute -right-12 sm:-right-16 top-1/2 -translate-y-1/2 p-2 bg-yellow-500 rounded-full hover:bg-yellow-400 hidden sm:block"
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={onNextClick}
+      disabled={disabled}
+    >
+      <svg className="w-6 h-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+      </svg>
+    </motion.button>
+  </>
+);
 
 const MotionIcon = () => (
   <svg 
@@ -254,7 +271,7 @@ const WhatsAppIcon = () => (
 const ServiceHeader = () => (
   <div className="text-center mb-8 sm:mb-16 space-y-4 px-4 sm:px-0">
     <p className="text-white max-w-3xl mx-auto font-bold text-xl sm:text-2xl">
-      Services
+      Let's get you started.
     </p>
     <h1 className="text-yellow-500 text-[1.5rem] sm:text-[clamp(2rem,5vw,2rem)] font-bold leading-tight">
       Have a great idea but unsure how to bring it to life?
@@ -599,6 +616,25 @@ const SocialLink = ({ href, children }: { href: string; children: React.ReactNod
 );
 
 export default function Home() {
+  const [[page, direction], setPage] = useState([0, 0]);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const paginate = (newDirection: number) => {
+    try {
+      if (!selectedImage) {
+        setPage(([currentPage, _]) => {
+          const nextPage = currentPage + newDirection;
+          if (nextPage < 0) return [2, newDirection];
+          if (nextPage >= 3) return [0, newDirection];
+          return [nextPage, newDirection];
+        });
+      }
+    } catch (error) {
+      console.error('Pagination error:', error);
+      setPage([0, 0]);
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-black">
       {/* Header bar */}
@@ -638,8 +674,19 @@ export default function Home() {
       {/* Main content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         {/* Image Carousel */}
-        <div className="md:col-span-3">
-          <LogoSlider />
+        <div className="md:col-span-3 relative">
+          <LogoSlider 
+            page={page}
+            direction={direction}
+            selectedImage={selectedImage}
+            setSelectedImage={setSelectedImage}
+            onPaginate={paginate}
+          />
+          <SliderNavigation 
+            onPrevClick={() => paginate(-1)} 
+            onNextClick={() => paginate(1)}
+            disabled={selectedImage !== null}
+          />
         </div>
 
         {/* Services Section */}
