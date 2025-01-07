@@ -335,7 +335,29 @@ const ServiceCard = ({ title, description, items }: ServiceCardProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+    
+    // Format the message for WhatsApp
+    const message = `
+*New Query from Website*
+Name: ${formData.name}
+Contact: ${formData.contactNumber}
+Email: ${formData.email}
+Service: ${formData.serviceType}
+    `.trim();
+
+    // Create WhatsApp URL (replace with your actual phone number)
+    const whatsappUrl = `https://wa.me/+9607692107?text=${encodeURIComponent(message)}`;
+    
+    // Open WhatsApp in a new tab
+    window.open(whatsappUrl, '_blank');
+    
+    // Reset form and close it
+    setFormData({
+      name: '',
+      contactNumber: '',
+      email: '',
+      serviceType: ''
+    });
     setIsFormOpen(false);
   };
 
@@ -380,56 +402,110 @@ const ServiceCard = ({ title, description, items }: ServiceCardProps) => {
       <AnimatePresence>
         {isFormOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-white/10 backdrop-blur-md rounded-[16px] sm:rounded-[32px] p-4 sm:p-6"
+            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
+            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-0"
           >
-            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-              <input
-                type="text"
-                placeholder="Name"
-                className="w-full px-3 sm:px-4 py-2 bg-black/50 rounded-full border border-white/20 text-white text-sm sm:text-base"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
-              <input
-                type="tel"
-                placeholder="Contact Number"
-                className="w-full px-3 sm:px-4 py-2 bg-black/50 rounded-full border border-white/20 text-white text-sm sm:text-base"
-                value={formData.contactNumber}
-                onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                className="w-full px-3 sm:px-4 py-2 bg-black/50 rounded-full border border-white/20 text-white text-sm sm:text-base"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
-              <select
-                className="w-full px-3 sm:px-4 py-2 bg-black/50 rounded-full border border-white/20 text-white text-sm sm:text-base"
-                value={formData.serviceType}
-                onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
+            {/* Backdrop */}
+            <motion.div 
+              className="absolute inset-0 bg-black/60"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsFormOpen(false)}
+            />
+
+            {/* Form Container */}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative bg-white/10 backdrop-blur-xl rounded-3xl p-6 sm:p-8 w-full max-w-lg border border-white/20 shadow-2xl"
+            >
+              {/* Close Button */}
+              <motion.button
+                className="absolute -top-2 -right-2 p-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white hover:bg-white/20 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsFormOpen(false)}
               >
-                <option value="">Select Service Type</option>
-                {items.map((service, idx) => (
-                  <option key={idx} value={service}>
-                    {service}
-                  </option>
-                ))}
-              </select>
-              <div className="flex justify-center pt-4">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </motion.button>
+
+              {/* Form Header */}
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold text-white mb-2">Get in Touch</h3>
+                <p className="text-white/60">We'll get back to you as soon as possible</p>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-white/80 text-sm font-medium">Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Your name"
+                    className="w-full px-4 py-3 bg-black/30 rounded-xl border border-white/10 text-white placeholder-white/30 focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/20 transition-all"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-white/80 text-sm font-medium">Contact Number</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="Your phone number"
+                    className="w-full px-4 py-3 bg-black/30 rounded-xl border border-white/10 text-white placeholder-white/30 focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/20 transition-all"
+                    value={formData.contactNumber}
+                    onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-white/80 text-sm font-medium">Email</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="Your email"
+                    className="w-full px-4 py-3 bg-black/30 rounded-xl border border-white/10 text-white placeholder-white/30 focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/20 transition-all"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-white/80 text-sm font-medium">Service Type</label>
+                  <select
+                    required
+                    className="w-full px-4 py-3 bg-black/30 rounded-xl border border-white/10 text-white focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/20 transition-all"
+                    value={formData.serviceType}
+                    onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
+                  >
+                    <option value="" className="bg-black">Select Service Type</option>
+                    {items.map((service, idx) => (
+                      <option key={idx} value={service} className="bg-black">
+                        {service}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <motion.button
                   type="submit"
-                  className="px-8 py-2 bg-black text-white rounded-full font-bold text-sm hover:bg-white hover:text-black transition-colors duration-200"
+                  className="w-full px-6 py-3 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-xl transition-colors mt-6"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Submit Query
+                  Send Message
                 </motion.button>
-              </div>
-            </form>
+              </form>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
