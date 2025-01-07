@@ -36,160 +36,74 @@ interface QueryFormData {
 const imageGroups = [
   ['/gallery/1.jpg', '/gallery/2.jpg', '/gallery/3.jpg', '/gallery/4.jpg', '/gallery/5.jpg', '/gallery/6.jpg'],
   ['/gallery/7.jpg', '/gallery/8.jpg', '/gallery/9.jpg', '/gallery/10.jpg', '/gallery/11.jpg', '/gallery/12.jpg'],
+  ['/gallery/13.jpg', '/gallery/14.jpg', '/gallery/15.jpg', '/gallery/16.jpg', '/gallery/17.jpg', '/gallery/18.jpg'],
+  ['/gallery/19.jpg', '/gallery/20.jpg', '/gallery/21.jpg', '/gallery/22.jpg', '/gallery/23.jpg', '/gallery/24.jpg'],
 ];
 
-const LogoSlider = ({ 
-  page, 
-  direction, 
-  selectedImage, 
-  setSelectedImage, 
-  onPaginate 
-}: LogoSliderProps) => {
-  const [isDragging, setIsDragging] = useState(false);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
+const IMAGES_PER_PAGE = 6;
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (selectedImage) return;
-    setTouchStart(e.touches[0].clientX);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!touchStart || selectedImage) return;
-    const currentTouch = e.touches[0].clientX;
-    const diff = touchStart - currentTouch;
-    
-    if (Math.abs(diff) > 50) {
-      onPaginate(diff > 0 ? 1 : -1);
-      setTouchStart(null);
+const LogoSlider = ({ selectedImage, setSelectedImage }: { 
+  selectedImage: string | null;
+  setSelectedImage: (image: string | null) => void;
+}) => {
+  const [displayCount, setDisplayCount] = useState(IMAGES_PER_PAGE);
+  
+  const loadMore = () => {
+    if (displayCount >= imageGroups.flat().length) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setDisplayCount(IMAGES_PER_PAGE);
+    } else {
+      setDisplayCount(prev => Math.min(prev + IMAGES_PER_PAGE, imageGroups.flat().length));
     }
   };
 
-  const handleTouchEnd = () => setTouchStart(null);
-
-  const gridVariants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 1000 : -1000,
-      opacity: 0
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-      transition: {
-        x: { type: "tween", duration: 0.3, ease: [0.32, 0.72, 0, 1] },
-        opacity: { duration: 0.2 }
-      }
-    },
-    exit: (direction: number) => ({
-      x: direction < 0 ? 1000 : -1000,
-      opacity: 0,
-      transition: {
-        x: { type: "tween", duration: 0.3, ease: [0.32, 0.72, 0, 1] },
-        opacity: { duration: 0.2 }
-      }
-    })
-  };
-
-  const imageVariants = {
-    normal: {
-      scale: 1,
-      transition: {
-        type: "tween",
-        duration: 0.3,
-        ease: [0.32, 0.72, 0, 1]
-      }
-    },
-    expanded: {
-      scale: 1.05,
-      transition: {
-        type: "tween",
-        duration: 0.3,
-        ease: [0.32, 0.72, 0, 1]
-      }
-    }
-  };
+  const currentImages = imageGroups.flat().slice(0, displayCount);
+  const isAtEnd = displayCount >= imageGroups.flat().length;
 
   return (
-    <div className="relative overflow-hidden w-full">
-      <AnimatePresence 
-        initial={false} 
-        custom={direction}
-        mode="wait"
-      >
-        <motion.div
-          key={page}
-          custom={direction}
-          variants={gridVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          className="grid grid-cols-3 gap-4 p-4"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          {imageGroups[page].map((image, index) => (
-            <motion.div
-              key={`${page}-${index}`}
-              layoutId={`image-${page}-${index}`}
-              className={`
-                ${selectedImage === image ? 'col-span-2 row-span-2' : 'col-span-1'} 
-                aspect-square cursor-pointer relative
-                transition-all duration-300
-              `}
-              onClick={() => !isDragging && setSelectedImage(selectedImage === image ? null : image)}
-              variants={imageVariants}
-              initial="normal"
-              animate={selectedImage === image ? "expanded" : "normal"}
-              whileHover={{ 
-                scale: selectedImage === image ? 1.02 : 1.05,
-                transition: { 
-                  duration: 0.3,
-                  ease: [0.32, 0.72, 0, 1]
-                }
-              }}
-              layout
-              transition={{
-                layout: {
-                  duration: 0.3,
-                  ease: [0.32, 0.72, 0, 1]
-                }
-              }}
-            >
-              <motion.div 
-                className="w-full h-full bg-black border-2 border-white/10 rounded-3xl overflow-hidden"
-                layoutId={`container-${page}-${index}`}
-                transition={{
-                  layout: {
-                    duration: 0.3,
-                    ease: [0.32, 0.72, 0, 1]
-                  }
-                }}
-              >
-                <Image
-                  src={image}
-                  alt={`Logo ${index + 1}`}
-                  width={400}
-                  height={400}
-                  className="w-full h-full object-cover"
-                  priority={index < 4}
-                  quality={75}
-                />
-              </motion.div>
-            </motion.div>
-          ))}
-        </motion.div>
-      </AnimatePresence>
-
-      <div className="hidden sm:flex justify-center space-x-2 mt-4">
-        {imageGroups.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => !selectedImage && onPaginate(index > page ? 1 : -1)}
-            className={`w-2 h-2 rounded-full transition-colors ${
-              page === index ? 'bg-white' : 'bg-white/30'
-            }`}
-          />
+    <div className="relative w-full px-4 sm:px-0">
+      {/* Image Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        {currentImages.map((image, index) => (
+          <div
+            key={image}
+            className={`
+              ${selectedImage === image ? 'col-span-2 row-span-2' : 'col-span-1'} 
+              aspect-square cursor-pointer relative
+            `}
+            onClick={() => setSelectedImage(selectedImage === image ? null : image)}
+          >
+            <div className="w-full h-full bg-black border-2 border-white/10 rounded-3xl overflow-hidden">
+              <Image
+                src={image}
+                alt={`Logo ${index + 1}`}
+                width={400}
+                height={400}
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                priority={index < 4}
+                quality={75}
+              />
+            </div>
+          </div>
         ))}
+      </div>
+
+      {/* Load More Button */}
+      <div className="mt-8 flex justify-center">
+        <button
+          onClick={loadMore}
+          className="p-2 bg-yellow-500 rounded-full hover:bg-yellow-400 transition-colors"
+        >
+          {isAtEnd ? (
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+          ) : (
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          )}
+        </button>
       </div>
     </div>
   );
@@ -335,29 +249,7 @@ const ServiceCard = ({ title, description, items }: ServiceCardProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Format the message for WhatsApp
-    const message = `
-*New Query from Website*
-Name: ${formData.name}
-Contact: ${formData.contactNumber}
-Email: ${formData.email}
-Service: ${formData.serviceType}
-    `.trim();
-
-    // Create WhatsApp URL (replace with your actual phone number)
-    const whatsappUrl = `https://wa.me/+9607692107?text=${encodeURIComponent(message)}`;
-    
-    // Open WhatsApp in a new tab
-    window.open(whatsappUrl, '_blank');
-    
-    // Reset form and close it
-    setFormData({
-      name: '',
-      contactNumber: '',
-      email: '',
-      serviceType: ''
-    });
+    console.log(formData);
     setIsFormOpen(false);
   };
 
@@ -628,16 +520,7 @@ const Header = () => (
 );
 
 export default function Home() {
-  const [[page, direction], setPage] = useState([0, 0]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
-  const paginate = (newDirection: number) => {
-    if (selectedImage) return;
-    setPage(([currentPage, _]) => {
-      const nextPage = (currentPage + newDirection + imageGroups.length) % imageGroups.length;
-      return [nextPage, newDirection];
-    });
-  };
 
   return (
     <>
@@ -646,16 +529,8 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
           <div className="relative">
             <LogoSlider 
-              page={page}
-              direction={direction}
               selectedImage={selectedImage}
               setSelectedImage={setSelectedImage}
-              onPaginate={paginate}
-            />
-            <SliderNavigation 
-              onPrevClick={() => paginate(-1)} 
-              onNextClick={() => paginate(1)}
-              disabled={selectedImage !== null}
             />
           </div>
 
@@ -710,7 +585,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-
         <ContactSection />
       </div>
     </>
