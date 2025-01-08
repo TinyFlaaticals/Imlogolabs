@@ -33,11 +33,135 @@ interface QueryFormData {
   serviceType: string;
 }
 
-const imageGroups = [
-  ['/gallery/1.jpg', '/gallery/2.jpg', '/gallery/3.jpg', '/gallery/4.jpg', '/gallery/5.jpg', '/gallery/6.jpg'],
-  ['/gallery/7.jpg', '/gallery/8.jpg', '/gallery/9.jpg', '/gallery/10.jpg', '/gallery/11.jpg', '/gallery/12.jpg'],
-  ['/gallery/13.jpg', '/gallery/14.jpg', '/gallery/15.jpg', '/gallery/16.jpg', '/gallery/17.jpg', '/gallery/18.jpg'],
-  ['/gallery/19.jpg', '/gallery/20.jpg', '/gallery/21.jpg', '/gallery/22.jpg', '/gallery/23.jpg', '/gallery/24.jpg'],
+interface ImageDetails {
+  src: string;
+  description: string;
+  likes: number;
+}
+
+const imageGroups: ImageDetails[][] = [
+  [
+    {
+      src: '/gallery/1.jpg',
+      description: 'Logo Design 1',
+      likes: 0
+    },
+    {
+      src: '/gallery/2.jpg',
+      description: 'Logo Design 2',
+      likes: 0
+    },
+    {
+      src: '/gallery/3.jpg',
+      description: 'Logo Design 3',
+      likes: 0
+    },
+    {
+      src: '/gallery/4.jpg',
+      description: 'Logo Design 4',
+      likes: 0
+    },
+    {
+      src: '/gallery/5.jpg',
+      description: 'Logo Design 5',
+      likes: 0
+    },
+    {
+      src: '/gallery/6.jpg',
+      description: 'Logo Design 6',
+      likes: 0
+    },
+    {
+      src: '/gallery/7.jpg',
+      description: 'Logo Design 7',
+      likes: 0
+    },
+    {
+      src: '/gallery/8.jpg',
+      description: 'Logo Design 8',
+      likes: 0
+    },
+    {
+      src: '/gallery/9.jpg',
+      description: 'Logo Design 9',
+      likes: 0
+    },
+    {
+      src: '/gallery/10.jpg',
+      description: 'Logo Design 10',
+      likes: 0
+    },
+    {
+      src: '/gallery/11.jpg',
+      description: 'Logo Design 11',
+      likes: 0
+    },
+    {
+      src: '/gallery/12.jpg',
+      description: 'Logo Design 12',
+      likes: 0
+    },
+    {
+      src: '/gallery/13.jpg',
+      description: 'Logo Design 13',
+      likes: 0
+    },
+    {
+      src: '/gallery/14.jpg',
+      description: 'Logo Design 14',
+      likes: 0
+    },
+    {
+      src: '/gallery/15.jpg',
+      description: 'Logo Design 15',
+      likes: 0
+    },
+    {
+      src: '/gallery/16.jpg',
+      description: 'Logo Design 16',
+      likes: 0
+    },
+    {
+      src: '/gallery/17.jpg',
+      description: 'Logo Design 17',
+      likes: 0
+    },
+    {
+      src: '/gallery/18.jpg',
+      description: 'Logo Design 18',
+      likes: 0
+    },
+    {
+      src: '/gallery/19.jpg',
+      description: 'Logo Design 19',
+      likes: 0
+    },
+    {
+      src: '/gallery/20.jpg',
+      description: 'Logo Design 20',
+      likes: 0
+    },
+    {
+      src: '/gallery/21.jpg',
+      description: 'Logo Design 21',
+      likes: 0
+    },
+    {
+      src: '/gallery/22.jpg',
+      description: 'Logo Design 22',
+      likes: 0
+    },
+    {
+      src: '/gallery/23.jpg',
+      description: 'Logo Design 23',
+      likes: 0
+    },
+    {
+      src: '/gallery/24.jpg',
+      description: 'Logo Design 24',
+      likes: 0
+    }
+  ]
 ];
 
 const INITIAL_IMAGES = 3;
@@ -65,7 +189,15 @@ const useIsInViewport = () => {
   return [ref, isIntersecting] as const;
 };
 
-const ImageModal = ({ image, onClose }: { image: string; onClose: () => void }) => {
+const ImageModal = ({ image, onClose }: { image: ImageDetails; onClose: () => void }) => {
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(image.likes);
+
+  const handleLike = () => {
+    setIsLiked(!isLiked);
+    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+  };
+
   return (
     <AnimatePresence>
       <motion.div
@@ -96,7 +228,7 @@ const ImageModal = ({ image, onClose }: { image: string; onClose: () => void }) 
           <div className="flex flex-col md:flex-row">
             <div className="relative aspect-square w-full md:w-[60%]">
               <Image
-                src={image}
+                src={image.src}
                 alt="Selected image"
                 fill
                 className="object-cover"
@@ -109,23 +241,45 @@ const ImageModal = ({ image, onClose }: { image: string; onClose: () => void }) 
             <div className="w-full md:w-[40%] p-4 border-t border-white/10 md:border-t-0 md:border-l">
               {/* User info */}
               <div className="flex items-center space-x-3 mb-4">
-                <div className="w-8 h-8 rounded-full bg-white/10"></div>
+                <div className="w-8 h-8 rounded-full overflow-hidden">
+                  <Image
+                    src="/myphotos/imlogo.png"
+                    alt="imlogolabs logo"
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-cover"
+                    priority
+                  />
+                </div>
                 <div className="text-white font-semibold">imlogolabs</div>
               </div>
 
-              {/* Interaction icons */}
-              <div className="flex items-center space-x-4 mb-4">
-                <button className="text-white/80 hover:text-white">
-                  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
+              {/* Description */}
+              <p className="text-white/80 mb-4">{image.description}</p>
+
+              {/* Divider */}
+              <div className="h-px bg-white/10 my-4"></div>
+
+              {/* Interaction buttons */}
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={handleLike}
+                  className={`text-white/80 hover:text-white transition-colors ${isLiked ? 'text-red-500' : ''}`}
+                >
+                  {isLiked ? (
+                    <svg className="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                  ) : (
+                    <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                  )}
                 </button>
-                <button className="text-white/80 hover:text-white">
-                  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                </button>
-                <button className="text-white/80 hover:text-white">
+                <span className="text-white/80">{likeCount} likes</span>
+                
+                {/* Share button */}
+                <button className="text-white/80 hover:text-white ml-auto">
                   <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                   </svg>
@@ -139,27 +293,36 @@ const ImageModal = ({ image, onClose }: { image: string; onClose: () => void }) 
   );
 };
 
+// Update the ImageGallery component to handle ImageDetails
 const ImageGallery = ({ selectedImage, setSelectedImage }: {
-  selectedImage: string | null;
-  setSelectedImage: (image: string | null) => void;
+  selectedImage: ImageDetails | null;
+  setSelectedImage: (image: ImageDetails | null) => void;
 }) => {
   const [currentPage, setCurrentPage] = useState(0);
-  const imagesPerPage = 12;
+  const imagesPerPage = 8; // Show 8 images per page (2 rows of 4)
   const allImages = imageGroups.flat();
   const totalPages = Math.ceil(allImages.length / imagesPerPage);
+
+  const nextPage = useCallback(() => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage(prev => prev + 1);
+    } else {
+      setCurrentPage(0); // Loop back to first page
+    }
+  }, [currentPage, totalPages]);
+
+  const prevPage = useCallback(() => {
+    if (currentPage > 0) {
+      setCurrentPage(prev => prev - 1);
+    } else {
+      setCurrentPage(totalPages - 1); // Loop to last page
+    }
+  }, [currentPage, totalPages]);
 
   const currentImages = useMemo(() => {
     const start = currentPage * imagesPerPage;
     return allImages.slice(start, start + imagesPerPage);
-  }, [currentPage]);
-
-  const nextPage = () => {
-    setCurrentPage((prev) => (prev + 1) % totalPages);
-  };
-
-  const prevPage = () => {
-    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
-  };
+  }, [currentPage, allImages, imagesPerPage]);
 
   return (
     <div className="relative w-full px-4 sm:px-12">
@@ -184,52 +347,61 @@ const ImageGallery = ({ selectedImage, setSelectedImage }: {
         </svg>
       </button>
 
-      {/* Image Grid */}
-      <motion.div 
-        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
-        initial={false}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
-        {currentImages.map((image, index) => (
-          <motion.div
-            key={image}
-            layoutId={image}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.3, delay: index * 0.05 }}
-            className="aspect-square relative group"
-          >
-            <div className="w-full h-full rounded-2xl overflow-hidden bg-black/20 border-2 border-white/10">
-              <Image
-                src={image}
-                alt={`Gallery image ${index + 1}`}
-                width={400}
-                height={400}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                priority={index < 4}
-                loading={index < 4 ? "eager" : "lazy"}
-                quality={75}
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              />
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="p-2 bg-yellow-500 rounded-full"
-                  onClick={() => setSelectedImage(image)}
-                >
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                </motion.button>
+      {/* Image Grid with Animation */}
+      <AnimatePresence mode="wait">
+        <motion.div 
+          key={currentPage}
+          initial={{ x: 100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: -100, opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="grid grid-cols-2 sm:grid-cols-4 gap-4 auto-rows-fr"
+        >
+          {currentImages.map((image, index) => (
+            <motion.div
+              key={`${image.src}-${index}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: index * 0.1 }}
+              className="aspect-square relative group"
+            >
+              <div className="w-full h-full rounded-2xl overflow-hidden bg-black/20 border-2 border-white/10">
+                <Image
+                  src={image.src}
+                  alt={`Gallery image ${index + 1}`}
+                  width={400}
+                  height={400}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  priority={index < 8}
+                  loading={index < 8 ? "eager" : "lazy"}
+                  quality={75}
+                  sizes="(max-width: 640px) 50vw, 25vw"
+                />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="p-2 bg-yellow-500 rounded-full"
+                    onClick={() => setSelectedImage(image)}
+                  >
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </motion.button>
+                </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Page Indicator */}
+      <div className="mt-6 flex justify-center items-center gap-4">
+        <span className="text-white/60">
+          {currentPage + 1} / {totalPages}
+        </span>
+      </div>
 
       {/* Modal */}
       {selectedImage && (
@@ -238,26 +410,6 @@ const ImageGallery = ({ selectedImage, setSelectedImage }: {
           onClose={() => setSelectedImage(null)}
         />
       )}
-
-      {/* Mobile Navigation */}
-      <div className="mt-6 flex justify-center gap-4 sm:hidden">
-        <button
-          onClick={prevPage}
-          className="p-3 bg-yellow-500/90 hover:bg-yellow-500 rounded-full transition-colors shadow-lg backdrop-blur-sm"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <button
-          onClick={nextPage}
-          className="p-3 bg-yellow-500/90 hover:bg-yellow-500 rounded-full transition-colors shadow-lg backdrop-blur-sm"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      </div>
     </div>
   );
 };
@@ -402,7 +554,30 @@ const ServiceCard = ({ title, description, items }: ServiceCardProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+    
+    // Format the message for WhatsApp
+    const message = `*New Query from Website*
+Name: ${formData.name}
+Contact: ${formData.contactNumber}
+Email: ${formData.email}
+Service: ${formData.serviceType}`;
+
+    // Encode the message for URL
+    const encodedMessage = encodeURIComponent(message);
+    
+    // Create WhatsApp URL
+    const whatsappURL = `https://wa.me/9607692107?text=${encodedMessage}`;
+    
+    // Open WhatsApp in new tab
+    window.open(whatsappURL, '_blank');
+    
+    // Reset form and close modal
+    setFormData({
+      name: '',
+      contactNumber: '',
+      email: '',
+      serviceType: ''
+    });
     setIsFormOpen(false);
   };
 
@@ -666,7 +841,7 @@ const Header = () => (
               className="w-6 h-6 sm:w-8 sm:h-8"
               fill="currentColor"
             >
-              <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/>
+              <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-2.751c0-1.534-.185-2.328-1.628-2.328h-2.718v-3.24c0-.921.137-.934 1.98-.952h1.03v-2.861h-1.03c-3.957 0-5.192 1.583-5.192 4.615v3.385z"/>
             </svg>
           </a>
         </div>
@@ -676,7 +851,7 @@ const Header = () => (
 );
 
 export default function Home() {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<ImageDetails | null>(null);
 
   return (
     <>
