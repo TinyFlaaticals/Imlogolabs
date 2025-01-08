@@ -65,108 +65,197 @@ const useIsInViewport = () => {
   return [ref, isIntersecting] as const;
 };
 
-const LogoSlider = ({ selectedImage, setSelectedImage }: { 
+const ImageModal = ({ image, onClose }: { image: string; onClose: () => void }) => {
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+      >
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.95, opacity: 0 }}
+          onClick={(e) => e.stopPropagation()}
+          className="relative w-full max-w-3xl bg-[#262626] rounded-xl overflow-hidden shadow-2xl"
+        >
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 z-50 p-1 text-white/80 hover:text-white"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          {/* Image container */}
+          <div className="flex flex-col md:flex-row">
+            <div className="relative aspect-square w-full md:w-[60%]">
+              <Image
+                src={image}
+                alt="Selected image"
+                fill
+                className="object-cover"
+                quality={100}
+                sizes="(max-width: 768px) 100vw, 60vw"
+              />
+            </div>
+
+            {/* Info section */}
+            <div className="w-full md:w-[40%] p-4 border-t border-white/10 md:border-t-0 md:border-l">
+              {/* User info */}
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-8 h-8 rounded-full bg-white/10"></div>
+                <div className="text-white font-semibold">imlogolabs</div>
+              </div>
+
+              {/* Interaction icons */}
+              <div className="flex items-center space-x-4 mb-4">
+                <button className="text-white/80 hover:text-white">
+                  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </button>
+                <button className="text-white/80 hover:text-white">
+                  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </button>
+                <button className="text-white/80 hover:text-white">
+                  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
+const ImageGallery = ({ selectedImage, setSelectedImage }: {
   selectedImage: string | null;
   setSelectedImage: (image: string | null) => void;
 }) => {
-  const [displayCount, setDisplayCount] = useState(INITIAL_IMAGES);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadMoreRef, isLoadMoreVisible] = useIsInViewport();
-  
-  // Update loadMore function
-  const loadMore = async () => {
-    if (isLoading) return;
-    
-    setIsLoading(true);
-    
-    if (displayCount >= imageGroups.flat().length) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setDisplayCount(INITIAL_IMAGES);
-      setIsLoading(false);
-    } else {
-      requestAnimationFrame(() => {
-        setDisplayCount(prev => Math.min(prev + LOAD_MORE_COUNT, imageGroups.flat().length));
-        setIsLoading(false);
-      });
-    }
+  const [currentPage, setCurrentPage] = useState(0);
+  const imagesPerPage = 12;
+  const allImages = imageGroups.flat();
+  const totalPages = Math.ceil(allImages.length / imagesPerPage);
+
+  const currentImages = useMemo(() => {
+    const start = currentPage * imagesPerPage;
+    return allImages.slice(start, start + imagesPerPage);
+  }, [currentPage]);
+
+  const nextPage = () => {
+    setCurrentPage((prev) => (prev + 1) % totalPages);
   };
 
-  // Update auto-load effect to use new constants
-  useEffect(() => {
-    if (isLoadMoreVisible && !isLoading && displayCount < imageGroups.flat().length) {
-      loadMore();
-    }
-  }, [isLoadMoreVisible]);
-
-  const currentImages = useMemo(() => 
-    imageGroups.flat().slice(0, displayCount),
-    [displayCount]
-  );
-  
-  const isAtEnd = displayCount >= imageGroups.flat().length;
+  const prevPage = () => {
+    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
+  };
 
   return (
-    <div className="relative w-full px-4 sm:px-0">
+    <div className="relative w-full px-4 sm:px-12">
+      {/* Navigation Arrows */}
+      <button
+        onClick={prevPage}
+        className="absolute -left-4 sm:-left-12 top-1/2 -translate-y-1/2 z-10 p-4 bg-yellow-500/90 hover:bg-yellow-500 rounded-full transition-colors hidden sm:block shadow-lg backdrop-blur-sm"
+        aria-label="Previous page"
+      >
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <button
+        onClick={nextPage}
+        className="absolute -right-4 sm:-right-12 top-1/2 -translate-y-1/2 z-10 p-4 bg-yellow-500/90 hover:bg-yellow-500 rounded-full transition-colors hidden sm:block shadow-lg backdrop-blur-sm"
+        aria-label="Next page"
+      >
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
       {/* Image Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      <motion.div 
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
+        initial={false}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
         {currentImages.map((image, index) => (
-          <div
+          <motion.div
             key={image}
-            className={`
-              ${selectedImage === image ? 'col-span-2 row-span-2' : 'col-span-1'} 
-              aspect-square cursor-pointer relative
-              transform transition-transform duration-200 hover:z-10
-              ${selectedImage === image ? 'scale-100' : 'hover:scale-105'}
-            `}
-            onClick={() => setSelectedImage(selectedImage === image ? null : image)}
+            layoutId={image}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.3, delay: index * 0.05 }}
+            className="aspect-square relative group"
           >
-            <div className="w-full h-full bg-black/20 border-2 border-white/10 rounded-3xl overflow-hidden">
+            <div className="w-full h-full rounded-2xl overflow-hidden bg-black/20 border-2 border-white/10">
               <Image
                 src={image}
-                alt={`Logo ${index + 1}`}
-                width={300}
-                height={300}
-                className="w-full h-full object-cover transition-opacity duration-300"
-                priority={index < 2}
-                loading={index < 2 ? "eager" : "lazy"}
-                quality={60}
+                alt={`Gallery image ${index + 1}`}
+                width={400}
+                height={400}
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                priority={index < 4}
+                loading={index < 4 ? "eager" : "lazy"}
+                quality={75}
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                onLoadingComplete={(img) => {
-                  img.classList.remove('opacity-0');
-                  img.classList.add('opacity-100');
-                }}
-                placeholder="blur"
-                blurDataURL={`data:image/svg+xml;base64,${Buffer.from(
-                  '<svg width="300" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#1a1a1a"/></svg>'
-                ).toString('base64')}`}
               />
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="p-2 bg-yellow-500 rounded-full"
+                  onClick={() => setSelectedImage(image)}
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </motion.button>
+              </div>
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
-      {/* Load More Button */}
-      <div ref={loadMoreRef} className="mt-8 flex justify-center">
+      {/* Modal */}
+      {selectedImage && (
+        <ImageModal
+          image={selectedImage}
+          onClose={() => setSelectedImage(null)}
+        />
+      )}
+
+      {/* Mobile Navigation */}
+      <div className="mt-6 flex justify-center gap-4 sm:hidden">
         <button
-          onClick={loadMore}
-          disabled={isLoading}
-          className="p-2 bg-yellow-500 rounded-full hover:bg-yellow-400 transition-colors disabled:opacity-50"
-          aria-label={isAtEnd ? "Back to top" : "Load more images"}
+          onClick={prevPage}
+          className="p-3 bg-yellow-500/90 hover:bg-yellow-500 rounded-full transition-colors shadow-lg backdrop-blur-sm"
         >
-          {isLoading ? (
-            <svg className="w-6 h-6 animate-spin" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-            </svg>
-          ) : isAtEnd ? (
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-            </svg>
-          ) : (
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-          )}
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button
+          onClick={nextPage}
+          className="p-3 bg-yellow-500/90 hover:bg-yellow-500 rounded-full transition-colors shadow-lg backdrop-blur-sm"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+          </svg>
         </button>
       </div>
     </div>
@@ -595,7 +684,7 @@ export default function Home() {
       <div className="min-h-screen w-full bg-black pt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
           <div className="relative">
-            <LogoSlider 
+            <ImageGallery 
               selectedImage={selectedImage}
               setSelectedImage={setSelectedImage}
             />
