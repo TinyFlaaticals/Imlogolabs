@@ -556,17 +556,14 @@ const ServiceCard = ({ title, description, items }: ServiceCardProps) => {
     e.preventDefault();
     
     // Format the message for WhatsApp
-    const message = `*New Query from Website*
-Name: ${formData.name}
-Contact: ${formData.contactNumber}
-Email: ${formData.email}
-Service: ${formData.serviceType}`;
-
-    // Encode the message for URL
-    const encodedMessage = encodeURIComponent(message);
+    const message = `*New Query from Website*%0a%0a` + 
+      `Name: ${formData.name}%0a` +
+      `Contact: ${formData.contactNumber}%0a` +
+      `Email: ${formData.email}%0a` +
+      `Service: ${formData.serviceType}`;
     
-    // Create WhatsApp URL
-    const whatsappURL = `https://wa.me/9607692107?text=${encodedMessage}`;
+    // Create WhatsApp URL with international format number
+    const whatsappURL = `https://api.whatsapp.com/send?phone=9607692107&text=${message}`;
     
     // Open WhatsApp in new tab
     window.open(whatsappURL, '_blank');
