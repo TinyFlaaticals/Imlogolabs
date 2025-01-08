@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 
 // TypeScript interfaces
 interface LogoSliderProps {
@@ -40,15 +40,40 @@ const imageGroups = [
   ['/gallery/19.jpg', '/gallery/20.jpg', '/gallery/21.jpg', '/gallery/22.jpg', '/gallery/23.jpg', '/gallery/24.jpg'],
 ];
 
-const IMAGES_PER_PAGE = 6;
+const INITIAL_IMAGES = 3;
+const LOAD_MORE_COUNT = 3;
+
+// Update the hook to be more flexible with its types
+const useIsInViewport = () => {
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsIntersecting(entry.isIntersecting);
+    });
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  return [ref, isIntersecting] as const;
+};
 
 const LogoSlider = ({ selectedImage, setSelectedImage }: { 
   selectedImage: string | null;
   setSelectedImage: (image: string | null) => void;
 }) => {
-  const [displayCount, setDisplayCount] = useState(IMAGES_PER_PAGE);
+  const [displayCount, setDisplayCount] = useState(INITIAL_IMAGES);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadMoreRef, isLoadMoreVisible] = useIsInViewport();
   
+  // Update loadMore function
   const loadMore = async () => {
     if (isLoading) return;
     
@@ -56,18 +81,28 @@ const LogoSlider = ({ selectedImage, setSelectedImage }: {
     
     if (displayCount >= imageGroups.flat().length) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      setDisplayCount(IMAGES_PER_PAGE);
+      setDisplayCount(INITIAL_IMAGES);
       setIsLoading(false);
     } else {
-      // Add a small delay to prevent UI freezing
-      setTimeout(() => {
-        setDisplayCount(prev => Math.min(prev + IMAGES_PER_PAGE, imageGroups.flat().length));
+      requestAnimationFrame(() => {
+        setDisplayCount(prev => Math.min(prev + LOAD_MORE_COUNT, imageGroups.flat().length));
         setIsLoading(false);
-      }, 100);
+      });
     }
   };
 
-  const currentImages = imageGroups.flat().slice(0, displayCount);
+  // Update auto-load effect to use new constants
+  useEffect(() => {
+    if (isLoadMoreVisible && !isLoading && displayCount < imageGroups.flat().length) {
+      loadMore();
+    }
+  }, [isLoadMoreVisible]);
+
+  const currentImages = useMemo(() => 
+    imageGroups.flat().slice(0, displayCount),
+    [displayCount]
+  );
+  
   const isAtEnd = displayCount >= imageGroups.flat().length;
 
   return (
@@ -80,20 +115,30 @@ const LogoSlider = ({ selectedImage, setSelectedImage }: {
             className={`
               ${selectedImage === image ? 'col-span-2 row-span-2' : 'col-span-1'} 
               aspect-square cursor-pointer relative
+              transform transition-transform duration-200 hover:z-10
+              ${selectedImage === image ? 'scale-100' : 'hover:scale-105'}
             `}
             onClick={() => setSelectedImage(selectedImage === image ? null : image)}
           >
-            <div className="w-full h-full bg-black border-2 border-white/10 rounded-3xl overflow-hidden">
+            <div className="w-full h-full bg-black/20 border-2 border-white/10 rounded-3xl overflow-hidden">
               <Image
                 src={image}
                 alt={`Logo ${index + 1}`}
                 width={300}
                 height={300}
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-cover transition-opacity duration-300"
                 priority={index < 2}
                 loading={index < 2 ? "eager" : "lazy"}
                 quality={60}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                onLoadingComplete={(img) => {
+                  img.classList.remove('opacity-0');
+                  img.classList.add('opacity-100');
+                }}
+                placeholder="blur"
+                blurDataURL={`data:image/svg+xml;base64,${Buffer.from(
+                  '<svg width="300" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#1a1a1a"/></svg>'
+                ).toString('base64')}`}
               />
             </div>
           </div>
@@ -101,11 +146,12 @@ const LogoSlider = ({ selectedImage, setSelectedImage }: {
       </div>
 
       {/* Load More Button */}
-      <div className="mt-8 flex justify-center">
+      <div ref={loadMoreRef} className="mt-8 flex justify-center">
         <button
           onClick={loadMore}
           disabled={isLoading}
           className="p-2 bg-yellow-500 rounded-full hover:bg-yellow-400 transition-colors disabled:opacity-50"
+          aria-label={isAtEnd ? "Back to top" : "Load more images"}
         >
           {isLoading ? (
             <svg className="w-6 h-6 animate-spin" viewBox="0 0 24 24">
@@ -471,7 +517,7 @@ const Header = () => (
         <div className="flex items-center space-x-2 sm:space-x-4">
           <Image
             src="/myphotos/imlogo.png"
-            alt="Imlogolabs Logo"
+            alt="ImlogoLabs Logo"
             width={50}
             height={50}
             className="rounded-full w-[40px] h-[40px] sm:w-[50px] sm:h-[50px]"
