@@ -1,15 +1,12 @@
-import type { Metadata } from "next";
-import { Geist } from "next/font/google";
-import "./globals.css";
-import { Providers } from './providers'
+import { Inter } from 'next/font/google'
+import './globals.css'
 
-// Initialize the font
-const geist = Geist({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'] })
 
-export const metadata: Metadata = {
-  title: 'imlogolabs',
-  description: 'by Illustrated Maldives',
-};
+export const metadata = {
+  title: 'Illustrated Maldives',
+  description: 'Illustrated Maldives - Art Gallery',
+}
 
 export default function RootLayout({
   children,
@@ -17,12 +14,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geist.className} bg-black text-white dark`}>
-        <Providers>
-          {children}
-        </Providers>
-      </body>
+    <html lang="en">
+      <body className={inter.className}>{children}</body>
     </html>
   )
 }

@@ -34,138 +34,29 @@ interface QueryFormData {
 }
 
 interface ImageDetails {
+  _id: string;
   src: string;
   description: string;
   likes: number;
+  order: number;
 }
 
-const imageGroups: ImageDetails[][] = [
-  [
-    {
-      src: '/gallery/1.jpg',
-      description: 'Logo Design 1',
-      likes: 0
-    },
-    {
-      src: '/gallery/2.jpg',
-      description: 'Logo Design 2',
-      likes: 0
-    },
-    {
-      src: '/gallery/3.jpg',
-      description: 'Logo Design 3',
-      likes: 0
-    },
-    {
-      src: '/gallery/4.jpg',
-      description: 'Logo Design 4',
-      likes: 0
-    },
-    {
-      src: '/gallery/5.jpg',
-      description: 'Logo Design 5',
-      likes: 0
-    },
-    {
-      src: '/gallery/6.jpg',
-      description: 'Logo Design 6',
-      likes: 0
-    },
-    {
-      src: '/gallery/7.jpg',
-      description: 'Logo Design 7',
-      likes: 0
-    },
-    {
-      src: '/gallery/8.jpg',
-      description: 'Logo Design 8',
-      likes: 0
-    },
-    {
-      src: '/gallery/9.jpg',
-      description: 'Logo Design 9',
-      likes: 0
-    },
-    {
-      src: '/gallery/10.jpg',
-      description: 'Logo Design 10',
-      likes: 0
-    },
-    {
-      src: '/gallery/11.jpg',
-      description: 'Logo Design 11',
-      likes: 0
-    },
-    {
-      src: '/gallery/12.jpg',
-      description: 'Logo Design 12',
-      likes: 0
-    },
-    {
-      src: '/gallery/13.jpg',
-      description: 'Logo Design 13',
-      likes: 0
-    },
-    {
-      src: '/gallery/14.jpg',
-      description: 'Logo Design 14',
-      likes: 0
-    },
-    {
-      src: '/gallery/15.jpg',
-      description: 'Logo Design 15',
-      likes: 0
-    },
-    {
-      src: '/gallery/16.jpg',
-      description: 'Logo Design 16',
-      likes: 0
-    },
-    {
-      src: '/gallery/17.jpg',
-      description: 'Logo Design 17',
-      likes: 0
-    },
-    {
-      src: '/gallery/18.jpg',
-      description: 'Logo Design 18',
-      likes: 0
-    },
-    {
-      src: '/gallery/19.jpg',
-      description: 'Logo Design 19',
-      likes: 0
-    },
-    {
-      src: '/gallery/20.jpg',
-      description: 'Logo Design 20',
-      likes: 0
-    },
-    {
-      src: '/gallery/21.jpg',
-      description: 'Logo Design 21',
-      likes: 0
-    },
-    {
-      src: '/gallery/22.jpg',
-      description: 'Logo Design 22',
-      likes: 0
-    },
-    {
-      src: '/gallery/23.jpg',
-      description: 'Logo Design 23',
-      likes: 0
-    },
-    {
-      src: '/gallery/24.jpg',
-      description: 'Logo Design 24',
-      likes: 0
-    }
-  ]
-];
+interface ImageGalleryProps {
+  selectedImage: ImageDetails | null;
+  setSelectedImage: (image: ImageDetails | null) => void;
+}
 
 const INITIAL_IMAGES = 3;
 const LOAD_MORE_COUNT = 3;
+
+// Update the mock data with simpler descriptions
+const MOCK_IMAGES: ImageDetails[] = Array.from({ length: 24 }, (_, i) => ({
+  _id: String(i + 1),
+  src: `/gallery/${i + 1}.jpg`,
+  description: `Design project ${i + 1}`,  // Simple description
+  likes: 0,
+  order: i + 1
+}));
 
 // Update the hook to be more flexible with its types
 const useIsInViewport = () => {
@@ -294,14 +185,11 @@ const ImageModal = ({ image, onClose }: { image: ImageDetails; onClose: () => vo
 };
 
 // Update the ImageGallery component to handle ImageDetails
-const ImageGallery = ({ selectedImage, setSelectedImage }: {
-  selectedImage: ImageDetails | null;
-  setSelectedImage: (image: ImageDetails | null) => void;
-}) => {
+const ImageGallery = ({ selectedImage, setSelectedImage }: ImageGalleryProps) => {
   const [currentPage, setCurrentPage] = useState(0);
-  const imagesPerPage = 8; // Show 8 images per page (2 rows of 4)
-  const allImages = imageGroups.flat();
-  const totalPages = Math.ceil(allImages.length / imagesPerPage);
+  const imagesPerPage = 8;
+  const images = MOCK_IMAGES;
+  const totalPages = Math.ceil((images?.length || 0) / imagesPerPage);
 
   const nextPage = useCallback(() => {
     if (currentPage < totalPages - 1) {
@@ -320,33 +208,13 @@ const ImageGallery = ({ selectedImage, setSelectedImage }: {
   }, [currentPage, totalPages]);
 
   const currentImages = useMemo(() => {
+    if (!Array.isArray(images)) return [];
     const start = currentPage * imagesPerPage;
-    return allImages.slice(start, start + imagesPerPage);
-  }, [currentPage, allImages, imagesPerPage]);
+    return images.slice(start, start + imagesPerPage);
+  }, [currentPage, images, imagesPerPage]);
 
   return (
     <div className="relative w-full px-4 sm:px-12">
-      {/* Navigation Arrows */}
-      <button
-        onClick={prevPage}
-        className="absolute -left-4 sm:-left-12 top-1/2 -translate-y-1/2 z-10 p-4 bg-yellow-500/90 hover:bg-yellow-500 rounded-full transition-colors hidden sm:block shadow-lg backdrop-blur-sm"
-        aria-label="Previous page"
-      >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
-
-      <button
-        onClick={nextPage}
-        className="absolute -right-4 sm:-right-12 top-1/2 -translate-y-1/2 z-10 p-4 bg-yellow-500/90 hover:bg-yellow-500 rounded-full transition-colors hidden sm:block shadow-lg backdrop-blur-sm"
-        aria-label="Next page"
-      >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
-
       {/* Image Grid with Animation */}
       <AnimatePresence mode="wait">
         <motion.div 
@@ -357,9 +225,9 @@ const ImageGallery = ({ selectedImage, setSelectedImage }: {
           transition={{ duration: 0.3 }}
           className="grid grid-cols-2 sm:grid-cols-4 gap-4 auto-rows-fr"
         >
-          {currentImages.map((image, index) => (
+          {currentImages.map((image: ImageDetails, index: number) => (
             <motion.div
-              key={`${image.src}-${index}`}
+              key={image._id}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: index * 0.1 }}
@@ -396,12 +264,30 @@ const ImageGallery = ({ selectedImage, setSelectedImage }: {
         </motion.div>
       </AnimatePresence>
 
-      {/* Page Indicator */}
-      <div className="mt-6 flex justify-center items-center gap-4">
-        <span className="text-white/60">
-          {currentPage + 1} / {totalPages}
-        </span>
-      </div>
+      {/* Navigation Arrows - Now below grid */}
+      {images.length > 0 && (
+        <div className="flex justify-center gap-4 mt-6">
+          <button
+            onClick={prevPage}
+            className="p-3 bg-yellow-500/90 hover:bg-yellow-500 rounded-full transition-colors shadow-lg backdrop-blur-sm w-10 h-10 flex items-center justify-center"
+            aria-label="Previous page"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <button
+            onClick={nextPage}
+            className="p-3 bg-yellow-500/90 hover:bg-yellow-500 rounded-full transition-colors shadow-lg backdrop-blur-sm w-10 h-10 flex items-center justify-center"
+            aria-label="Next page"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {/* Modal */}
       {selectedImage && (
